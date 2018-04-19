@@ -6,33 +6,25 @@
 namespace{
 	clock_t oldTime = clock();
 	clock_t newTime = clock();
-
 	using std::cout;
 	using std::endl;
-
 	const size_t BufferSize(1024*1024);
 	const int nBuffer(4);
 	const UINT SECTOR_SIZE(512);
-
 	double ProgressOld(0);
 	double ProgressNew(0);
-
 	HANDLE hInFile;
 	HANDLE hOutFile;
-
 	LONGLONG nFileSize = 0;
 	LONGLONG nCurrentRead = 0;
 	LONGLONG nCurrentWritten = 0;
 	LONGLONG nLastWritten = 0;
-
 	BYTE* multTBuffer[2];
 	CRITICAL_SECTION lockBuffer[2];
 	CONDITION_VARIABLE BufferReadyToBeRead[2];
 	CONDITION_VARIABLE BufferReadyToBeWrite[2];
-
 	DWORD mnNumberOfBytesRead[2] = {0};
 	DWORD mnNumberOfBytesWritten[2] = {0};
-
 	enum {TO_BE_READ = 0, TO_BE_WRITE = 1};
 	BOOL BufferState[2];
 }
@@ -52,7 +44,6 @@ ULONGLONG GetDiskSpace(HANDLE hDevice){
 	DWORD dwSize = sizeof(SENDCMDOUTPARAMS) + 512;
 	PSENDCMDOUTPARAMS pSendCmdOutParams = (PSENDCMDOUTPARAMS)(new BYTE[dwSize]);
 	pSendCmdOutParams->cBufferSize = 512;
-
 	if(!::DeviceIoControl(hDevice, SMART_RCV_DRIVE_DATA, &SendCmdInParams, sizeof(SENDCMDINPARAMS),
 		pSendCmdOutParams, dwSize, &dwSize, NULL))
 	{
@@ -60,11 +51,8 @@ ULONGLONG GetDiskSpace(HANDLE hDevice){
 		pSendCmdOutParams = NULL;
 		return FALSE;
 	}
-
-	// 获取设备容量
 	ULONGLONG ullSize = 0;
 	ullSize = *(ULONGLONG*)(pSendCmdOutParams->bBuffer + 0xC8);//C8
-
 	delete pSendCmdOutParams;
 	pSendCmdOutParams = NULL;
 	return ullSize;
@@ -244,13 +232,10 @@ void Copy_2Thread2Buff(const wchar_t* inPath, const wchar_t* outPath){
 		InitializeConditionVariable(&(BufferReadyToBeWrite[i]));
 		BufferState[i] = TO_BE_WRITE;
 	}
-
 	HANDLE hRead = CreateThread(NULL, 0, ReadThread, (PVOID)1, 0, NULL);
 	HANDLE hWrite = CreateThread(NULL, 0, WriteThread, (PVOID)1, 0, NULL);
-
 	WaitForSingleObject (hRead, INFINITE);
 	WaitForSingleObject (hWrite, INFINITE);
-
 	for (int i = 0; i < nBuffer; i++){
 		delete[] multTBuffer[i];
 	}
