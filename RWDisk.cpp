@@ -244,6 +244,5 @@ void Copy_2Thread2Buff(const wchar_t* inPath, const wchar_t* outPath){
 }
 int main(){
 	Copy_2Thread2Buff(L"\\\\.\\PHYSICALDRIVE1", L"\\\\.\\PHYSICALDRIVE2");
-	cout << sizeof(PVOID) <<endl;
 	return 0;
 }
