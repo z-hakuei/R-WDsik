@@ -172,6 +172,8 @@ void Copy_1ThreadNBuff(const wchar_t* inPath, const wchar_t* outPath){
 }
 
 // 双线程双缓冲区拷贝
+
+// 读线程
 DWORD WINAPI ReadThread(PVOID pvParam){
 	while (true){
 		if (nFileSize == nCurrentWritten)break;
@@ -189,6 +191,8 @@ DWORD WINAPI ReadThread(PVOID pvParam){
 	}
 	return 0;
 }
+
+// 写线程
 DWORD WINAPI WriteThread(PVOID pvParam){
 	while(true){
 		if (nFileSize == nCurrentWritten)break;
